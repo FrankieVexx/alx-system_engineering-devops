@@ -1,0 +1,5 @@
+# sharing configs
+
+Host 52.91.118.25
+       IdentityFile ~/.ssh/school
+       PasswordAuthentication no
