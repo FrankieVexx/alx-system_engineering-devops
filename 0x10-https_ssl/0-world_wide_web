@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+# The function dmn_info takes two arguments - a domain name and a subdomain name
+# and retrieves the DNS record for the given subdomain and domain.
+# Extracts the details with 'awk'.
+# The formatted information is then displayed using 'echo'.
+dmn_info () {
+    script_line=$(dig "$2"."$1" | grep -A1 'ANSWER SECTION:' | tr '\t' '\n' | tail -2 | tr '\n' ' ')
+    echo "$2 $script_line" | awk '{print "The subdomain " $1 " is a " $2 " record and points to " $3}'
+}
+
+# Check the number of arguments passed to the script using '$#'.
+# If one argument is provided, it calls 'dmn_info' function 
+# for each of the predefined subdomains ('www', 'lb-01', 'web-01', 'web-02')
+# and passes the domain as the first argument.
+# If two arguments are provided, it calls 'dmn_info' function with the provided domain and subdomain.
+if [ "$#" == 1 ]
+then
+  dmn_info "$1" "www"
+  dmn_info "$1" "lb-01"
+  dmn_info "$1" "web-01"
+  dmn_info "$1" "web-02"
+elif [ "$#" == 2 ]
+then
+  dmn_info "$1" "$2"
+fi
+
