@@ -3,7 +3,7 @@ global
         log /dev/log    local1 notice
         chroot /var/lib/haproxy
         stats socket /run/haproxy/admin.sock mode 660 level admin expose-fd listeners
-        stats timeout 30s 
+        stats timeout 30s
         user haproxy
         group haproxy
         daemon
@@ -33,23 +33,14 @@ defaults
         errorfile 503 /etc/haproxy/errors/503.http
         errorfile 504 /etc/haproxy/errors/504.http
 
-frontend http-in
+frontend francode-frontend
         bind *:80
-        http-request add-header X-Forwarded-Proto http
-        default_backend www-backend
+        bind *:443 ssl crt /etc/letsencrypt/live/www.francode.tech/certs.pem
+        http-request redirect scheme https unless { ssl_fc }
+        default_backend francode-backend
 
-frontend www-https
-   bind *:443 ssl crt /etc/certs/certs/www.francode.tech.pem
-   http-request add-header X-Forwarded-Proto https
-   acl letsencrypt-acl path_beg /.well-known/acme-challenge/
-   use_backend letsencrypt-backend if letsencrypt-acl
-   default_backend www-backend
 
 backend servers
         balance roundrobin
-        redirect scheme https if !{ ssl_fc }
-        server web-01 52.91.118.25:80 check
-        server web-02 52.91.125.236:80 check
-
-backend letsencrypt-backend 
-   server letsencrypt 127.0.0.1:54321
+        server 122846-web-01 52.91.118.25:80 check
+        server 122846-web-02 52.91.125.236:80 check
